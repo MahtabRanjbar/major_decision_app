@@ -35,7 +35,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Title
-st.title("🎓برنامه انتخاب رشته دکتر حسین جایروند")
+st.title("برنامه انتخاب رشته دکتر حسین جایروند")
 
 # Sidebar for filters
 st.sidebar.header("Filters")
