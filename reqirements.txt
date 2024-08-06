@@ -1,0 +1,4 @@
+streamlit 
+pandas 
+Pillow
+st-social-media-links

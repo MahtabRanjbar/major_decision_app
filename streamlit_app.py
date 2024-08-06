@@ -5,6 +5,7 @@ import base64
 from st_social_media_links import SocialMediaIcons
 
 # Function to convert image to Base64
+@st.cache_data
 def get_image_as_base64(image_file):
     with open(image_file, "rb") as file:
         return base64.b64encode(file.read()).decode()
