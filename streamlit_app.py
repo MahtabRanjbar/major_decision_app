@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import base64
-from st_social_media_links import SocialMediaIcons
+#from st_social_media_links import SocialMediaIcons
 
 # Function to convert image to Base64
 @st.cache_data
@@ -109,16 +109,6 @@ with st.sidebar:
     # Display the image at the top of the sidebar
     st.image(image, use_column_width=True)
 
-
-    social_media_links = [
-
-        "https://www.instagram.com/",
-        "https://www.t.me.com/dr_hoseinjayervand",
-    ]
-
-    social_media_icons = SocialMediaIcons(social_media_links)
-
-    social_media_icons.render()
 
     # Initialize select box states
     universities = ['همه'] + sorted(df['دانشگاه'].unique().tolist())
