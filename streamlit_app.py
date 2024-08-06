@@ -146,6 +146,8 @@ with st.sidebar:
             min_rank_input = st.number_input("حداقل رتبه", min_value=min_rank, max_value=max_rank, value=min_rank)
         with col2:
             max_rank_input = st.number_input("حداکثر رتبه", min_value=min_rank, max_value=max_rank, value=max_rank)
+        st.info("کیبورد را روی حالت انگلیسی قرار دهید.")    
+
     else:
         exact_rank = st.sidebar.number_input(
             "رتبه دقیق",
