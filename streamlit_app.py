@@ -1,13 +1,83 @@
 import streamlit as st
 import pandas as pd
+from PIL import Image
+import base64
+from st_social_media_links import SocialMediaIcons
 
-# Set page configuration
-st.set_page_config(page_title="برنامه انتخاب رشته دکتر حسین جای", layout="wide")
+# Function to convert image to Base64
+def get_image_as_base64(image_file):
+    with open(image_file, "rb") as file:
+        return base64.b64encode(file.read()).decode()
+
+# Set the page configuration
+st.set_page_config(page_title="My Streamlit App", layout="wide")
+
+# Path to your local image (update this path)
+image_path = "bg4.jpg"  # Replace with your image filename
+
+# Convert image to Base64
+image_base64 = get_image_as_base64(image_path)
+# Load your image
+image = Image.open("bg23.png")  # Replace with your image path
+
+
+
+# Add custom CSS for background image
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-image: url(data:image/jpeg;base64,{image_base64});
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        height: 200vh;
+
+        direction: RTL;
+        unicode-bidi: bidi-override;
+        text-align: right;
+    }}
+    .stApp h1 {{
+        color: #000000!important;
+        padding: 10px 20px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 40px;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,5,0,0.1);
+
+    }}
+    
+    .sidebar .sidebar-content {{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }}
+    .sidebar .element-container:first-child {{
+        width: 80%;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }}
+    .sidebar img {{
+        width: 100%;
+        height: 0;
+        padding-bottom: 100%; /* This makes it square */
+        object-fit: cover;
+        border-radius: 50%; /* Optional: rounds the corners */
+    }}
+        .black-text {{
+        color: black !important;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Load the data
 @st.cache_data
 def load_data():
-    df = pd.read_csv('output_1.csv')
+    df = pd.read_csv('output.csv')
     return df
 
 df = load_data()
@@ -15,14 +85,7 @@ df = load_data()
 # Custom CSS for better UI
 st.markdown("""
 <style>
-            
-    .stApp {
-        background-color: #17a2b8;
-        direction: RTL;
-        unicode-bidi: bidi-override;
-        text-align: right;
-    }
-    .stSelectbox, .stTextInput, .stSlider, .stNumberInput {
+    .stSelectbox, .stTextInput, .stNumberInput {
         background-color: transparent;
         direction: RTL;
         unicode-bidi: bidi-override;
@@ -31,42 +94,74 @@ st.markdown("""
     .stDataFrame {
         border: none;
     }
+    .body {
+            
+            }        
 </style>
 """, unsafe_allow_html=True)
 
 # Title
-st.title("برنامه انتخاب رشته دکتر حسین جایروند")
+#st.title("🎓 انتخاب رشته دکتر حسین جایروند")
 
-# Sidebar for filters
-st.sidebar.header("Filters")
+with st.sidebar:
+    # Sidebar for filters
+    # Display the image at the top of the sidebar
+    st.image(image, use_column_width=True)
 
-# University filter
-universities = ['همه'] + sorted(df['دانشگاه'].unique().tolist())
-selected_university = st.sidebar.selectbox("انتخاب دانشگاه", universities)
 
-# Major filter
-majors = ['همه'] + sorted(df['رشته'].unique().tolist())
-selected_major = st.sidebar.selectbox("انتخاب رشته تحصیلی", majors)
+    social_media_links = [
 
-# Quota filter
-quotas = ['همه'] + sorted(df['سهمیه'].unique().tolist())
-selected_quota = st.sidebar.selectbox("انتخاب سهمیه", quotas)
+        "https://www.instagram.com/",
+        "https://www.t.me.com/dr_hoseinjayervand",
+    ]
 
-# Rank filter
-rank_filter_type = st.sidebar.radio("نوع فیلتر رتبه", ["Range", "Exact"])
+    social_media_icons = SocialMediaIcons(social_media_links)
 
-if rank_filter_type == "Range":
-    min_rank = int(df['رتبه در سهمیه'].min())
-    max_rank = int(df['رتبه در سهمیه'].max())
-    rank_range = st.sidebar.slider("محدوده رتبه", min_rank, max_rank, (min_rank, max_rank))
-else:
-    # Use the minimum rank from the dataset as the min_value
-    exact_rank = st.sidebar.number_input(
-        "رتبه دقیق",
-        min_value=int(df['رتبه در سهمیه'].min()), 
-        max_value=int(df['رتبه در سهمیه'].max()), 
-        value=int(df['رتبه در سهمیه'].min())  # Set default to min rank
-    )
+    social_media_icons.render()
+
+    # Initialize select box states
+    universities = ['همه'] + sorted(df['دانشگاه'].unique().tolist())
+    majors = ['همه'] + sorted(df['رشته'].unique().tolist())
+
+    # First, let the user choose either university or major
+    filter_choice = st.sidebar.radio("انتخاب بر اساس", ["دانشگاه", "رشته تحصیلی"])
+
+    if filter_choice == "دانشگاه":
+        selected_university = st.sidebar.selectbox("انتخاب دانشگاه", universities, key='university_select')
+        if selected_university != 'همه':
+            majors = ['همه'] + sorted(df[df['دانشگاه'] == selected_university]['رشته'].unique().tolist())
+        selected_major = st.sidebar.selectbox("انتخاب رشته تحصیلی", majors, key='major_select')
+    else:  # filter_choice == "رشته تحصیلی"
+        selected_major = st.sidebar.selectbox("انتخاب رشته تحصیلی", majors, key='major_select')
+        if selected_major != 'همه':
+            universities = ['همه'] + sorted(df[df['رشته'] == selected_major]['دانشگاه'].unique().tolist())
+            selected_university = st.sidebar.selectbox("انتخاب دانشگاه (بر اساس رشته انتخاب شده)", universities, key='university_select_2')
+        else:
+            selected_university = 'همه'
+
+    # Quota filter
+    quotas = ['همه'] + sorted(df['سهمیه'].unique().tolist())
+    selected_quota = st.sidebar.selectbox("انتخاب سهمیه", quotas)
+
+    # Rank filter
+    rank_filter_type = st.sidebar.radio("نوع فیلتر رتبه", ["بازه رتبه", "رتبه دقیق"])
+
+    if rank_filter_type == "بازه رتبه":
+        min_rank = int(df['رتبه در سهمیه'].min())
+        max_rank = int(df['رتبه در سهمیه'].max())
+        
+        col1, col2 = st.sidebar.columns(2)
+        with col1:
+            min_rank_input = st.number_input("حداقل رتبه", min_value=min_rank, max_value=max_rank, value=min_rank)
+        with col2:
+            max_rank_input = st.number_input("حداکثر رتبه", min_value=min_rank, max_value=max_rank, value=max_rank)
+    else:
+        exact_rank = st.sidebar.number_input(
+            "رتبه دقیق",
+            min_value=int(df['رتبه در سهمیه'].min()),
+            max_value=int(df['رتبه در سهمیه'].max()),
+            value=int(df['رتبه در سهمیه'].min())
+        )
 
 # Apply filters
 filtered_df = df.copy()
@@ -80,13 +175,19 @@ if selected_major != 'همه':
 if selected_quota != 'همه':
     filtered_df = filtered_df[filtered_df['سهمیه'] == selected_quota]
 
-if rank_filter_type == "Range":
-    filtered_df = filtered_df[(filtered_df['رتبه در سهمیه'] >= rank_range[0]) & 
-                              (filtered_df['رتبه در سهمیه'] <= rank_range[1])]
+if rank_filter_type == "بازه رتبه":
+    filtered_df = filtered_df[(filtered_df['رتبه در سهمیه'] >= min_rank_input) &
+                              (filtered_df['رتبه در سهمیه'] <= max_rank_input)]
 else:
-    # Only filter if an exact rank is provided
     filtered_df = filtered_df[filtered_df['رتبه در سهمیه'] == exact_rank]
 
 # Display results
-st.header("نتایج فیلتر شده")
+
+original_title = '<p style="font-family:Courier; color:Black; font-size: 30;">🎓انتخاب رشته دکتر حسین جایروند</p>'
+
+
+st.title("🎓انتخاب رشته دکتر حسین جایروند")
+st.write("") # Add 3 more newlines for additional spacing
+
 st.dataframe(filtered_df, use_container_width=True)
+# Title and spacing
