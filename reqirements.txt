@@ -1,4 +1,5 @@
+python
 streamlit 
 pandas 
-Pillow
+pillow
 st-social-media-links
