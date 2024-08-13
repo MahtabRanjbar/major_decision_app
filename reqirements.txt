@@ -1,6 +1,6 @@
+gdown==4.4.0  # or any other version you need
 python
 streamlit 
 pandas 
 pillow
 st-social-media-links
-gdown

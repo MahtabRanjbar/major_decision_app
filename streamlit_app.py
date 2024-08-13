@@ -2,9 +2,8 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import base64
-import gdown
 from st_social_media_links import SocialMediaIcons
-
+import gdown
 # Function to convert image to Base64
 def get_image_as_base64(image_file):
     with open(image_file, "rb") as file:
