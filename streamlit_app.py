@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import base64
-from st_social_media_links import SocialMediaIcons
-import gdown
+import requests
+
+
 # Function to convert image to Base64
 def get_image_as_base64(image_file):
     with open(image_file, "rb") as file:
@@ -84,24 +85,26 @@ st.markdown(
 )
 
 
+
+
+
 @st.cache_data
 def load_data():
     # Replace 'your_file_id' with the actual file ID from your Google Drive shareable link
-    url = 'https://drive.google.com/uc?id=1ltG10sbaogW6Z5-7CaLPWg0JYF-WaWCJ'
-    with st.spinner('Loading data...'):
-        gdown.download(url, 'output.csv', quiet=False)
+    file_id = '1ltG10sbaogW6Z5-7CaLPWg0JYF-WaWCJ'
+    url = f'https://drive.google.com/uc?id={file_id}'
+    
+    response = requests.get(url)
+    with open('output.csv', 'wb') as f:
+        f.write(response.content)
+
     df = pd.read_csv('output.csv')
     return df
 
-# Create a placeholder for the loading message
-placeholder = st.empty()
-
 # Load data
-with placeholder.container():
-    df = load_data()
+df = load_data()
 
-# Clear the placeholder after loading
-placeholder.empty()
+# Display DataFrame
 
 # Custom CSS for better UI
 st.markdown("""
@@ -136,9 +139,7 @@ with st.sidebar:
         "https://www.t.me.com/dr_hoseinjayervand",
     ]
 
-    social_media_icons = SocialMediaIcons(social_media_links)
 
-    social_media_icons.render()
 
     # Initialize select box states
     universities = ['همه'] + sorted(df['دانشگاه'].unique().tolist())
