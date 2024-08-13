@@ -3,3 +3,4 @@ streamlit
 pandas 
 pillow
 st-social-media-links
+gdown

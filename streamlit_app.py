@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import base64
-#from st_social_media_links import SocialMediaIcons
+import gdown
+from st_social_media_links import SocialMediaIcons
 
 # Function to convert image to Base64
-@st.cache_data
 def get_image_as_base64(image_file):
     with open(image_file, "rb") as file:
         return base64.b64encode(file.read()).decode()
@@ -49,17 +49,26 @@ st.markdown(
         text-shadow: 1px 1px 2px rgba(0,5,0,0.1);
 
     }}
+    [data-testid="stDataFrameColumnHeadersRow"] button {{
+        display: none;
+    }}
+    
+    /* Ensure horizontal scrolling is available if needed */
+    [data-testid="stDataFrame"] {{
+        overflow-x: auto !important;
+    }}
     
     .sidebar .sidebar-content {{
-        display: flex;
-        flex-direction: column;
+
         align-items: center;
+        width: 500px;
     }}
     .sidebar .element-container:first-child {{
         width: 80%;
         margin-top: 20px;
         margin-bottom: 20px;
     }}
+
     .sidebar img {{
         width: 100%;
         height: 0;
@@ -75,13 +84,25 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Load the data
+
 @st.cache_data
 def load_data():
+    # Replace 'your_file_id' with the actual file ID from your Google Drive shareable link
+    url = 'https://drive.google.com/uc?id=1ltG10sbaogW6Z5-7CaLPWg0JYF-WaWCJ'
+    with st.spinner('Loading data...'):
+        gdown.download(url, 'output.csv', quiet=False)
     df = pd.read_csv('output.csv')
     return df
 
-df = load_data()
+# Create a placeholder for the loading message
+placeholder = st.empty()
+
+# Load data
+with placeholder.container():
+    df = load_data()
+
+# Clear the placeholder after loading
+placeholder.empty()
 
 # Custom CSS for better UI
 st.markdown("""
@@ -109,6 +130,16 @@ with st.sidebar:
     # Display the image at the top of the sidebar
     st.image(image, use_column_width=True)
 
+
+    social_media_links = [
+
+        "https://www.instagram.com/",
+        "https://www.t.me.com/dr_hoseinjayervand",
+    ]
+
+    social_media_icons = SocialMediaIcons(social_media_links)
+
+    social_media_icons.render()
 
     # Initialize select box states
     universities = ['همه'] + sorted(df['دانشگاه'].unique().tolist())
@@ -146,8 +177,6 @@ with st.sidebar:
             min_rank_input = st.number_input("حداقل رتبه", min_value=min_rank, max_value=max_rank, value=min_rank)
         with col2:
             max_rank_input = st.number_input("حداکثر رتبه", min_value=min_rank, max_value=max_rank, value=max_rank)
-        st.info("کیبورد را روی حالت انگلیسی قرار دهید.")    
-
     else:
         exact_rank = st.sidebar.number_input(
             "رتبه دقیق",
@@ -182,5 +211,33 @@ original_title = '<p style="font-family:Courier; color:Black; font-size: 30;">�
 st.title("🎓انتخاب رشته دکتر حسین جایروند")
 st.write("") # Add 3 more newlines for additional spacing
 
+
+
+
+st.markdown(
+    """
+    <style>
+    .no-copy {
+        -webkit-user-select: none; /* Safari */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently
+                            supported by Chrome and Opera */
+    }
+    </style>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const elements = document.querySelectorAll("div[data-testid='stTable']");
+        elements.forEach(el => {
+            el.classList.add('no-copy');
+        });
+    });
+    </script>
+    """,
+    unsafe_allow_html=True
+)
+
+st.write("")
+# Display the dataframe
 st.dataframe(filtered_df, use_container_width=True)
-# Title and spacing
+# Display the table
